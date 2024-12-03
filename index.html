@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inicio Sesión</title>
+    <link rel="stylesheet" href="estilos.css">
+
+    <!-- Fuente -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <!-- Elementos para el fondo -->
+    <div class="color"></div>
+    <div class="color"></div>
+    <div class="color"></div>
+
+    <div class="fondo">
+        <div class="circulo"></div>
+        <div class="circulo"></div>
+        <div class="circulo"></div>
+    </div>
+
+    
+
+    <form id="formulario-login" class="formulario-login">
+        <!-- Elementos flotantes decoracion -->
+        <div class="cuadrados">
+            <div class="square" style="--i:0;"></div>
+            <div class="square" style="--i:1;"></div>
+            <div class="square" style="--i:2;"></div>
+        </div>
+
+
+        <h2>INICIAR SESIÓN</h2>
+        <div class="formulario-entrada">
+            <label for="dni"></label>
+            <input type="text" name="dni" id="dni" placeholder="Introduce DNI" maxlength="9" required autocomplete="username"> 
+            <span id="error-dni" class="error"></span>
+        </div>
+        <div class="formulario-entrada">
+            <label for="contra"></label>
+            <input type="password" name="contra" id="contra" placeholder="Introduce contraseña" required autocomplete="current-password">
+            <span id="error-contra" class="error"></span>
+        </div>
+        <div class="formulario-entrada">
+            <span id="valorSwitch">Paciente</span>
+            <label class="switch-main">
+                <input type="checkbox" id="botonSwitch" class="switch-input">
+                <span class="switch-slider"></span>
+            </label>
+        </div>
+        <div class="formulario-entrada">
+            <button type="submit" class="btn">Entrar</button>
+        </div>
+        <span id="login-error" class="error"></span>
+    </form>
+
+    <script src="js/login.js"></script>
+</body>
+</html>

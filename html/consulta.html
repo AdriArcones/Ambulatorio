@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consulta</title>
+    <link rel="stylesheet" href="../estilos.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Elementos para el fondo -->
+    <div class="color"></div>
+    <div class="color"></div>
+    <div class="color"></div>
+
+
+    <header>
+        <h1>CONSULTA MÉDICA</h1>
+        <div class="enlace-inicio">
+            <a href="../index.html">Inicio Sesión</a>
+        </div>
+    </header>
+    <main>
+        <section id="infoConsulta">
+            <h3>Información Consulta</h3>
+            <div class="contenido">
+                <p>Médico: <span id="nombreMedico"></span></p>
+                <p>Paciente: <span id="nombrePaciente"></span></p>
+                <p>Fecha: <span id="fechaConsulta"></span></p>
+            </div>
+        </section>
+        <section id="sintomatologia">
+            <h3>Sintomatología</h3>
+            <textarea id="sintomas"></textarea>
+        </section>
+        <section id="diagnostico">
+            <h3>Diagnóstico</h3>
+            <textarea id="diagnostico"></textarea>
+        </section>
+        <section id="medicacion">
+            <h3>Medicación</h3>
+            <form id="formMedicacion">
+                <label for="medicamento">Selecciona un medicamento:</label>
+                <select id="medicamento"></select>
+                <label for="cantidad">Cantidad:</label>
+                <input type="text" id="cantidad" placeholder="Seleccione una cantidad">
+                <label for="frecuencia">Frecuencia:</label>
+                <input type="text" id="frecuencia" placeholder="Ejemplo: cada 8 horas">
+                <label for="duracion">Duración:</label>
+                <input type="text" id="duracion" placeholder="Ejemplo: 3 días">
+                <label for="cronica">¿Crónica?:</label>
+                <input type="checkbox" id="cronica">
+                <button type="button" id="btnAddMedicacion" class="btn">Añadir Medicación</button>
+            </form>
+            <h4>Medicamentos añadidos:</h4>
+            <ul id="listaMedicacion" class="contenido"></ul>
+        </section>
+        <section id="subir">
+            <h3>Subir PDF</h3>
+            <input type="file" id="subirPdf">
+        </section>
+        <section id="especialista">
+            <h3>Derivar a especialista</h3>
+            <form id="formEspecialista">
+                <label for="selectEspecialista">Selecciona el especialista:</label>
+                <select id="selectEspecialista"></select>
+                <label for="fechaEspecialista">Fecha de cita:</label>
+                <input type="date" id="fechaEspecialista">
+                <button type="button" id="btnAddCita" class="btn">Añadir Cita</button>
+            </form>
+        </section>
+        <button id="btnRegistrar" class="btn">Registrar</button>
+    </main>
+    <script src="../js/consulta.js"></script>
+</body>
+</html>

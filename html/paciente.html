@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paciente</title>
+    <link rel="stylesheet" href="../estilos.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Elementos para el fondo -->
+    <div class="color"></div>
+    <div class="color"></div>
+    <div class="color"></div>
+
+    <header>
+        <h1>PORTAL DEL PACIENTE</h1>
+        <div class="enlace-inicio">
+            <a href="../index.html">Inicio Sesión</a>
+        </div>
+    </header>
+    <main>
+        <section id="informacionPaciente">
+            <h3>Información del Paciente</h3>
+            <div class="contenido">
+                <p>Nombre: <span id="nombrePaciente"></span></p>
+                <p>Información: <span id="infoPaciente"></span></p>
+            </div>
+        </section>
+        <section id="proximasCitas">
+            <h3>Próximas Citas</h3>
+            <ul id="listaCitas" class="contenido"></ul>
+        </section>
+        <section id="medicacionActual">
+            <h3>Medicación Actual</h3>
+            <ul id="listaMedicacion" class="contenido"></ul>
+        </section>
+        <section id="consultasPasadas">
+            <h3>Consultas Pasadas</h3>
+            <ul id="listaConsultas" class="contenido"></ul>
+        </section>
+        <section id="consultaSeleccionada" style="display: none;">
+            <h3>Información de la Consulta</h3>
+            <div id="infoConsultaSeleccionada" class="contenido"></div>
+        </section>
+        <section id="pedirCita">
+            <h3>Pedir Cita</h3>
+            <form id="formCita">
+                <label for="medico">Selecciona un médico:</label>
+                <select id="medico">
+                    
+                </select>
+                <label for="fecha">Fecha:</label>
+                <input type="date" id="fecha">
+                <label for="sintomas">Sintomatología:</label>
+                <textarea id="sintomas" placeholder="Describe tus síntomas"></textarea>
+                <button type="submit" id="btnPedirCita" class="btn">Pedir Cita</button>
+            </form>
+            
+        </section>
+    </main>
+
+    
+    <script src="../js/paciente.js"></script>
+</body>
+</html>

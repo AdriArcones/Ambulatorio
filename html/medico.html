@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medico</title>
+
+    <link rel="stylesheet" href="../estilos.css">
+
+    <!-- Fuente -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin> 
+
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Elementos para el fondo -->
+    <div class="color"></div>
+    <div class="color"></div>
+    <div class="color"></div>
+
+
+    <header>
+        <h1>PORTAL DEL MÉDICO</h1>
+        <div class="enlace-inicio">
+            <a href="../index.html">Inicio Sesión</a>
+        </div>
+    </header>
+    <main>
+        <section id="infoMedico">
+            <h3>Información del Médico</h3>
+            <div class="contenido">
+                <p>Nombre: <span id="nombreMedico"></span></p>
+                <p>Especialidad: <span id="especialidadMedico"></span></p>
+            </div>
+        </section>
+        <section id="proximasConsultas">
+            <h3>Consultas en los Próximos 7 Días</h3>
+            <div class="contenido">
+                <p>Número de consultas en los próximos 7 días: <span id="nProximasConsultas"></span></p>
+            </div>
+        </section>
+        <section id="consultasHoy">
+            <h3>Consultas de Hoy</h3>
+            <!-- <div class="contenido consulta">
+                <p>ID: <span id="consultaId"></span></p>
+                <p>Paciente: <span id="consultaPaciente"></span></p>
+                <p>Sintomatología: <span id="consultaSintomatologia"></span></p>
+                <button class="btn">Pasar consulta</button>
+            </div> -->
+
+        </section>
+
+
+    </main>
+
+
+
+
+
+    <script src="../js/medico.js"></script>
+</body>
+</html>
