@@ -59,3 +59,40 @@ form.addEventListener("submit", (event) => {
         window.location.href = `html/medico.html?dni=${dni}`;
     }
 });
+
+
+
+
+// Valide el inicio de sesión contra la base de datos
+form.addEventListener("submit", (event) => {
+    event.preventDefault();
+
+    const dni = document.getElementById("dni").value.trim().toUpperCase();
+    const contra = document.getElementById("contra").value;
+    const rol = botonSwitch.checked ? "Médico" : "Paciente";
+
+    fetch('login.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: new URLSearchParams({
+            dni: dni,
+            contra: contra,
+            rol: rol
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            if (data.rol === "Paciente") {
+                window.location.href = `html/paciente.html?dni=${dni}`;
+            } else {
+                window.location.href = `html/medico.html?dni=${dni}`;
+            }
+        } else {
+            loginError.textContent = "DNI o contraseña incorrectos.";
+        }
+    })
+    .catch(error => console.error('Error:', error));
+});
