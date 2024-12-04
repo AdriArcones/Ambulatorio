@@ -1,23 +1,40 @@
 <?php
 include_once 'conecta.php';
 
-$dni = $_POST['dni'];
-$contra = $_POST['contra'];
-$rol = $_POST['rol'];
+header('Content-Type: application/json');
 
-if ($rol === 'Paciente') {
-    $sql = "SELECT * FROM paciente WHERE dni = '$dni' AND contra = '$contra'";
+$data = json_decode(file_get_contents("php://input"), true);
+$dni = $data['dni'];
+$contra = $data['contra'];
+$rol = $data['rol'];
+
+if ($rol === 'paciente') {
+    $sql = "SELECT * FROM paciente WHERE dni = ?";
 } else {
-    $sql = "SELECT * FROM medico WHERE dni = '$dni' AND contra = '$contra'";
+    $sql = "SELECT * FROM medico WHERE dni = ?";
 }
 
-$result = $conexion->query($sql);
+$stmt = $conexion->prepare($sql);
+$stmt->bind_param("s", $dni);
+$stmt->execute();
+$result = $stmt->get_result();
+
+$response = [];
 
 if ($result->num_rows > 0) {
-    echo json_encode(['success' => true, 'rol' => $rol]);
+    $user = $result->fetch_assoc();
+    if ($contra === $user['contra']) {
+        $redirect = $rol === 'paciente' ? 'html/paciente.html' : 'html/medico.html';
+        $response = ['success' => true, 'redirect' => $redirect];
+    } else {
+        $response = ['success' => false, 'message' => 'Contraseña incorrecta.'];
+    }
 } else {
-    echo json_encode(['success' => false]);
+    $response = ['success' => false, 'message' => 'Usuario no encontrado.'];
 }
 
+echo json_encode($response);
+
+$stmt->close();
 $conexion->close();
 ?>
