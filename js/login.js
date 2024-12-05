@@ -14,7 +14,21 @@ botonSwitch.addEventListener("change", () => {
 document.getElementById("dni").addEventListener("blur", () => {
     const dni = document.getElementById("dni").value;
     const dniRegex = /^[0-9]{8}[A-Za-z]$/;
-    errorDni.textContent = dniRegex.test(dni) ? "" : "DNI no válido";
+    if (!dniRegex.test(dni)) {
+        errorDni.textContent = "DNI no válido";
+    } else {
+        errorDni.textContent = "";
+    }
+});
+
+// Validar contraseña cuando el campo pierde el foco
+document.getElementById("contra").addEventListener("blur", () => {
+    const contra = document.getElementById("contra").value;
+    if (!contra) {
+        errorContra.textContent = "La contraseña no puede estar vacía";
+    } else {
+        errorContra.textContent = "";
+    }
 });
 
 // Llamar a tablas.php para inicializar la base de datos
@@ -33,7 +47,6 @@ window.addEventListener("load", () => {
             console.error("Error al ejecutar tablas.php:", error);
         });
 });
-
 
 // Inicio sesión
 form.addEventListener("submit", (event) => {
@@ -55,7 +68,11 @@ form.addEventListener("submit", (event) => {
         if (data.success) {
             window.location.href = data.redirect;
         } else {
-            loginError.textContent = data.message;
+            if (data.message === "Usuario no encontrado") {
+                loginError.textContent = data.message;
+            } else {
+                errorContra.textContent = data.message;
+            }
         }
     })
     .catch(error => {
@@ -63,4 +80,3 @@ form.addEventListener("submit", (event) => {
         loginError.textContent = "Error al iniciar sesión.";
     });
 });
-
