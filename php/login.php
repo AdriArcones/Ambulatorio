@@ -24,7 +24,7 @@ $response = [];
 if ($result->num_rows > 0) {
     $user = $result->fetch_assoc();
     if ($contra === $user['contra']) {
-        $redirect = $rol === 'paciente' ? 'html/paciente.html' : 'html/medico.html';
+        $redirect = $rol === 'paciente' ? 'html/paciente.html?dni=' . $dni : 'html/medico.html?dni=' . $dni;
         $response = ['success' => true, 'redirect' => $redirect];
     } else {
         $response = ['success' => false, 'message' => 'Contraseña incorrecta.'];

@@ -1,40 +1,4 @@
-const pacientes = [
-    {
-        dni: "12345678A",
-        nombre: "Juan Pérez",
-        info: "Paciente con hipertensión",
-        citas: [
-            { id: 1, medico: "Dr. García", fecha: "2024-12-05" },
-            { id: 2, medico: "Dra. López", fecha: "2024-12-10" }
-        ],
-        medicacion: [
-            { nombre: "Lisinopril", posologia: "10mg cada 24h", hasta: "2024-12-31" }
-        ],
-        consultas: [
-            { id: 1, fecha: "2024-11-20", pdf: "consulta1.pdf" },
-            { id: 2, fecha: "2024-11-25", pdf: "consulta2.pdf" }
-        ]
-    },
-    {
-        dni: "12345678B",
-        nombre: "Ana Gómez",
-        info: "Paciente con diabetes tipo 2",
-        citas: [
-            { id: 1, medico: "Dr. Sánchez", fecha: "2024-12-07" },
-            { id: 2, medico: "Dra. Martínez", fecha: "2024-12-14" }
-        ],
-        medicacion: [
-            { nombre: "Metformina", posologia: "850mg cada 12h", hasta: "2025-01-31" }
-        ],
-        consultas: [
-            { id: 1, fecha: "2024-11-22", pdf: "consulta3.pdf" },
-            { id: 2, fecha: "2024-11-28", pdf: "consulta4.pdf" }
-        ]
-    }
-];
-
 document.addEventListener("DOMContentLoaded", () => {
-    // Obtener el DNI de la URL
     const urlParams = new URLSearchParams(window.location.search);
     const dniPaciente = urlParams.get('dni');
 
@@ -43,128 +7,150 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
     }
 
-    // Buscar al paciente en la lista
-    const paciente = pacientes.find(p => p.dni === dniPaciente);
+    obtenerInformacionPaciente(dniPaciente);
+    obtenerProximasCitas(dniPaciente);
+    obtenerMedicacionActual(dniPaciente);
+    obtenerConsultasPasadas(dniPaciente);
+    configurarFormularioCita(dniPaciente);
+});
 
-    if (!paciente) {
-        alert("Paciente no encontrado");
-        return;
-    }
+function obtenerInformacionPaciente(dni) {
+    fetch(`../php/paciente.php?action=info&dni=${dni}`)
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById("nombrePaciente").textContent = data.nombre;
+            document.getElementById("infoPaciente").textContent = data.informacion;
+        })
+        .catch(error => console.error("Error al obtener la información del paciente:", error));
+}
 
-    // Mostrar información del paciente
-    document.getElementById("nombrePaciente").textContent = paciente.nombre;
-    document.getElementById("infoPaciente").textContent = paciente.info;
+function obtenerProximasCitas(dni) {
+    fetch(`../php/paciente.php?action=proximasCitas&dni=${dni}`)
+        .then(response => response.json())
+        .then(data => {
+            const listaCitas = document.getElementById("listaCitas");
+            listaCitas.innerHTML = "";
+            data.forEach(cita => {
+                const li = document.createElement("li");
+                li.textContent = `ID: ${cita.id}, Médico: ${cita.medico}, Fecha: ${cita.fecha}`;
+                listaCitas.appendChild(li);
+            });
+        })
+        .catch(error => console.error("Error al obtener las próximas citas:", error));
+}
 
-    // Mostrar próximas citas
-    const listaCitas = document.getElementById("listaCitas");
-    function actualizarListaCitas() {
-        listaCitas.innerHTML = ""; // Limpiar la lista antes de actualizar
-        paciente.citas.forEach(cita => {
-            const li = document.createElement("li");
-            li.textContent = `ID: ${cita.id}, Médico: ${cita.medico}, Fecha: ${cita.fecha}`;
-            listaCitas.appendChild(li);
-        });
-    }
-    actualizarListaCitas();
+function obtenerMedicacionActual(dni) {
+    fetch(`../php/paciente.php?action=medicacionActual&dni=${dni}`)
+        .then(response => response.json())
+        .then(data => {
+            const listaMedicacion = document.getElementById("listaMedicacion");
+            listaMedicacion.innerHTML = "";
+            data.forEach(medicacion => {
+                const li = document.createElement("li");
+                li.textContent = `${medicacion.nombre}, Posología: ${medicacion.posologia}, Hasta: ${medicacion.hasta}`;
+                listaMedicacion.appendChild(li);
+            });
+        })
+        .catch(error => console.error("Error al obtener la medicación actual:", error));
+}
 
-    // Mostrar medicación actual
-    const listaMedicacion = document.getElementById("listaMedicacion");
-    paciente.medicacion.forEach(med => {
-        const li = document.createElement("li");
-        li.textContent = `${med.nombre}, ${med.posologia}, hasta ${med.hasta}`;
-        listaMedicacion.appendChild(li);
-    });
+function obtenerConsultasPasadas(dni) {
+    fetch(`../php/paciente.php?action=consultasPasadas&dni=${dni}`)
+        .then(response => response.json())
+        .then(data => {
+            const listaConsultas = document.getElementById("listaConsultas");
+            listaConsultas.innerHTML = "";
+            data.forEach(consulta => {
+                const li = document.createElement("li");
+                li.textContent = `ID: ${consulta.id}, Fecha: ${consulta.fecha}`;
+                li.addEventListener("click", () => mostrarDetalleConsulta(consulta.id));
+                listaConsultas.appendChild(li);
+            });
+        })
+        .catch(error => console.error("Error al obtener las consultas pasadas:", error));
+}
 
-    // Mostrar consultas pasadas
-    const listaConsultas = document.getElementById("listaConsultas");
-    paciente.consultas.forEach(consulta => {
-        const li = document.createElement("li");
-        li.textContent = `ID: ${consulta.id}, Fecha: ${consulta.fecha}`;
-        li.addEventListener("click", () => {
-            mostrarConsultaSeleccionada(consulta);
-        });
-        listaConsultas.appendChild(li);
-    });
+function mostrarDetalleConsulta(idConsulta) {
+    fetch(`../php/paciente.php?action=detalleConsulta&id=${idConsulta}`)
+        .then(response => response.json())
+        .then(data => {
+            const consultaSeleccionada = document.getElementById("consultaSeleccionada");
+            const infoConsultaSeleccionada = document.getElementById("infoConsultaSeleccionada");
 
-    // Llenar el select con los médicos disponibles
-    const selectMedico = document.getElementById("medico");
-    const medicosDisponibles = ["Dr. García", "Dra. López", "Dr. Sánchez", "Dra. Martínez"]; // Lista de médicos disponibles
-    medicosDisponibles.forEach(medico => {
-        const option = document.createElement("option");
-        option.value = medico;
-        option.textContent = medico;
-        selectMedico.appendChild(option);
-    });
+            consultaSeleccionada.style.display = "block";
+            infoConsultaSeleccionada.innerHTML = `
+                <p>ID de la consulta: ${data.id}</p>
+                <p>Fecha: ${data.fecha}</p>
+                <p>Síntomas: ${data.sintomas}</p>
+                <p>Diagnóstico: ${data.diagnostico}</p>
+                <p>Medicación: ${data.medicacion}</p>
+                ${data.pdf ? `<p><a href="../data/${data.pdf}" target="_blank">Ver PDF</a></p>` : ''}
+            `;
+        })
+        .catch(error => console.error("Error al obtener los detalles de la consulta:", error));
+}
 
-    // Validar fecha al cambiar el valor del input de fecha
+function configurarFormularioCita(dni) {
+    const formCita = document.getElementById("formCita");
     const fechaInput = document.getElementById("fecha");
-    const mensajeErrorFecha = document.createElement("span");
-    mensajeErrorFecha.classList.add("error");
-    fechaInput.parentNode.insertBefore(mensajeErrorFecha, fechaInput.nextSibling);
+    const mensajeError = document.createElement("span");
+    formCita.appendChild(mensajeError);
+
+    fetch(`../php/paciente.php?action=medicosDisponibles&dni=${dni}`)
+        .then(response => response.json())
+        .then(data => {
+            const selectMedico = document.getElementById("medico");
+            selectMedico.innerHTML = "";
+            data.forEach(medico => {
+                const option = document.createElement("option");
+                option.value = medico.id;
+                option.textContent = `${medico.nombre} (${medico.especialidad})`;
+                selectMedico.appendChild(option);
+            });
+        })
+        .catch(error => console.error("Error al obtener los médicos disponibles:", error));
 
     fechaInput.addEventListener("change", () => {
         const fechaSeleccionada = new Date(fechaInput.value);
         const hoy = new Date();
-        const fechaLimite = new Date(hoy);
-        fechaLimite.setMonth(hoy.getMonth() + 1);
+        const unMesDespues = new Date(hoy);
+        unMesDespues.setMonth(hoy.getMonth() + 1);
 
         if (fechaSeleccionada < hoy) {
-            mensajeErrorFecha.innerHTML = "Fecha no válida<br><br>";
-        } else if (fechaSeleccionada > fechaLimite) {
-            mensajeErrorFecha.innerHTML = "Tan malo no estarás. Pide una fecha como máximo 30 días en el futuro<br><br>";
+            mensajeError.textContent = "Fecha no válida";
         } else if (fechaSeleccionada.getDay() === 0 || fechaSeleccionada.getDay() === 6) {
-            mensajeErrorFecha.innerHTML = "Por favor, elija un día laborable<br><br>";
+            mensajeError.textContent = "Por favor, elija un día laborable";
+        } else if (fechaSeleccionada > unMesDespues) {
+            mensajeError.textContent = "Tan malo no estarás. Pide una fecha como máximo 30 días en el futuro";
         } else {
-            mensajeErrorFecha.innerHTML = "";
+            mensajeError.textContent = "";
         }
     });
 
-    // Validar y pedir cita
-    document.getElementById("formCita").addEventListener("submit", (event) => {
+    formCita.addEventListener("submit", (event) => {
         event.preventDefault();
+        if (mensajeError.textContent === "") {
+            const medico = document.getElementById("medico").value;
+            const fecha = fechaInput.value;
+            const sintomas = document.getElementById("sintomas").value;
 
-        const medico = document.getElementById("medico").value;
-        const fecha = document.getElementById("fecha").value;
-        const sintomas = document.getElementById("sintomas").value;
-
-        // Validaciones
-        let hayErrores = false;
-        if (!medico || !fecha || !sintomas.trim()) {
-            alert("Por favor, complete todos los campos.");
-            hayErrores = true;
+            fetch(`../php/paciente.php?action=pedirCita&dni=${dni}`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ medico, fecha, sintomas })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert("Cita pedida correctamente");
+                    obtenerProximasCitas(dni);
+                } else {
+                    alert("Error al pedir la cita: " + data.message);
+                }
+            })
+            .catch(error => console.error("Error al pedir la cita:", error));
         }
-
-        const fechaSeleccionada = new Date(fecha);
-        const hoy = new Date();
-        const fechaLimite = new Date(hoy);
-        fechaLimite.setMonth(hoy.getMonth() + 1);
-
-        if (fechaSeleccionada < hoy || fechaSeleccionada.getDay() === 0 || fechaSeleccionada.getDay() === 6 || fechaSeleccionada > fechaLimite) {
-            alert("Por favor, elija una fecha válida.");
-            hayErrores = true;
-        }
-
-        if (hayErrores) return;
-
-        // Añadir la cita al array de citas del paciente
-        paciente.citas.push({ id: paciente.citas.length + 1, medico, fecha });
-
-        // Actualizar la lista de próximas citas
-        actualizarListaCitas();
-
-        alert("Cita pedida con éxito");
     });
-
-    // Mostrar información de la consulta seleccionada
-    function mostrarConsultaSeleccionada(consulta) {
-        const consultaSeleccionada = document.getElementById("consultaSeleccionada");
-        const infoConsultaSeleccionada = document.getElementById("infoConsultaSeleccionada");
-
-        consultaSeleccionada.style.display = "block";
-        infoConsultaSeleccionada.innerHTML = `
-            <p>ID de la consulta: ${consulta.id}</p>
-            <p>Fecha: ${consulta.fecha}</p>
-            ${consulta.pdf ? `<p><a href="../data/${consulta.pdf}" target="_blank">Ver PDF</a></p>` : ''}
-        `;
-    }
-});
+}
