@@ -14,6 +14,7 @@ document.addEventListener("DOMContentLoaded", () => {
     configurarFormularioCita(dniPaciente);
 });
 
+
 function obtenerInformacionPaciente(dni) {
     fetch(`../php/paciente.php?action=info&dni=${dni}`)
         .then(response => response.json())
@@ -63,7 +64,7 @@ function obtenerConsultasPasadas(dni) {
             data.forEach(consulta => {
                 const li = document.createElement("li");
                 li.textContent = `ID: ${consulta.id}, Fecha: ${consulta.fecha}`;
-                li.addEventListener("click", () => mostrarDetalleConsulta(consulta.id));
+                li.addEventListener("click", () => mostrarDetalleConsulta(consulta.id)); 
                 listaConsultas.appendChild(li);
             });
         })
@@ -74,6 +75,7 @@ function mostrarDetalleConsulta(idConsulta) {
     fetch(`../php/paciente.php?action=detalleConsulta&id=${idConsulta}`)
         .then(response => response.json())
         .then(data => {
+            console.log("Datos de la consulta:", data); 
             const consultaSeleccionada = document.getElementById("consultaSeleccionada");
             const infoConsultaSeleccionada = document.getElementById("infoConsultaSeleccionada");
 
@@ -84,8 +86,9 @@ function mostrarDetalleConsulta(idConsulta) {
                 <p>Síntomas: ${data.sintomas}</p>
                 <p>Diagnóstico: ${data.diagnostico}</p>
                 <p>Medicación: ${data.medicacion}</p>
-                ${data.pdf ? `<p><a href="../data/${data.pdf}" target="_blank">Ver PDF</a></p>` : ''}
+                ${data.pdf ? `<p><a href="../data/${data.pdf}" target="_blank">Descargar PDF</a></p>` : ''}
             `;
+
         })
         .catch(error => console.error("Error al obtener los detalles de la consulta:", error));
 }
@@ -93,8 +96,9 @@ function mostrarDetalleConsulta(idConsulta) {
 function configurarFormularioCita(dni) {
     const formCita = document.getElementById("formCita");
     const fechaInput = document.getElementById("fecha");
-    const mensajeError = document.createElement("span");
-    formCita.appendChild(mensajeError);
+    const sintomasInput = document.getElementById("sintomas");
+    const errorFecha = document.getElementById("errorFecha");
+    const errorSintomas = document.getElementById("errorSintomas");
 
     fetch(`../php/paciente.php?action=medicosDisponibles&dni=${dni}`)
         .then(response => response.json())
@@ -117,22 +121,38 @@ function configurarFormularioCita(dni) {
         unMesDespues.setMonth(hoy.getMonth() + 1);
 
         if (fechaSeleccionada < hoy) {
-            mensajeError.textContent = "Fecha no válida";
+            errorFecha.textContent = "Fecha no válida";
         } else if (fechaSeleccionada.getDay() === 0 || fechaSeleccionada.getDay() === 6) {
-            mensajeError.textContent = "Por favor, elija un día laborable";
+            errorFecha.textContent = "Por favor, elija un día laborable";
         } else if (fechaSeleccionada > unMesDespues) {
-            mensajeError.textContent = "Tan malo no estarás. Pide una fecha como máximo 30 días en el futuro";
+            errorFecha.textContent = "Tan malo no estarás. Pide una fecha como máximo 30 días en el futuro";
         } else {
-            mensajeError.textContent = "";
+            errorFecha.textContent = "";
         }
     });
 
     formCita.addEventListener("submit", (event) => {
         event.preventDefault();
-        if (mensajeError.textContent === "") {
+        let valid = true;
+
+        if (!fechaInput.value) {
+            errorFecha.textContent = "La fecha es obligatoria";
+            valid = false;
+        } else {
+            errorFecha.textContent = "";
+        }
+
+        if (!sintomasInput.value.trim()) {
+            errorSintomas.textContent = "La sintomatología es obligatoria";
+            valid = false;
+        } else {
+            errorSintomas.textContent = "";
+        }
+
+        if (valid) {
             const medico = document.getElementById("medico").value;
             const fecha = fechaInput.value;
-            const sintomas = document.getElementById("sintomas").value;
+            const sintomas = sintomasInput.value;
 
             fetch(`../php/paciente.php?action=pedirCita&dni=${dni}`, {
                 method: "POST",

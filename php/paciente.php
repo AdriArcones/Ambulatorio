@@ -2,19 +2,20 @@
 include_once 'conecta.php';
 
 $action = $_GET['action'];
+$dni = $_GET['dni']; // Obtener el DNI de la URL
 
 switch ($action) {
     case 'info':
-        obtenerInformacionPaciente();
+        obtenerInformacionPaciente($dni);
         break;
     case 'proximasCitas':
-        obtenerProximasCitas();
+        obtenerProximasCitas($dni);
         break;
     case 'medicacionActual':
-        obtenerMedicacionActual();
+        obtenerMedicacionActual($dni);
         break;
     case 'consultasPasadas':
-        obtenerConsultasPasadas();
+        obtenerConsultasPasadas($dni);
         break;
     case 'detalleConsulta':
         $idConsulta = $_GET['id'];
@@ -22,27 +23,25 @@ switch ($action) {
         break;
     case 'pedirCita':
         $data = json_decode(file_get_contents("php://input"), true);
-        pedirCita($data);
+        pedirCita($data, $dni);
         break;
     case 'medicosDisponibles':
-        obtenerMedicosDisponibles();
+        obtenerMedicosDisponibles($dni);
         break;
     default:
         echo json_encode(['success' => false, 'message' => 'Acción no válida']);
 }
 
-function obtenerInformacionPaciente() {
+function obtenerInformacionPaciente($dni) {
     global $conexion;
-    $dni = '12345678A'; // Aquí deberías obtener el DNI del paciente autenticado
     $sql = "SELECT nombre, informacion FROM paciente WHERE dni = '$dni'"; 
     $result = $conexion->query($sql);
     $data = $result->fetch_assoc();
     echo json_encode($data);
 }
 
-function obtenerProximasCitas() {
+function obtenerProximasCitas($dni) {
     global $conexion;
-    $dni = '12345678A'; // Aquí deberías obtener el DNI del paciente autenticado
     $sql = "SELECT cita.id, medico.nombre AS medico, cita.fecha 
             FROM cita 
             JOIN medico ON cita.id_medico = medico.id 
@@ -56,9 +55,8 @@ function obtenerProximasCitas() {
     echo json_encode($data);
 }
 
-function obtenerMedicacionActual() {
+function obtenerMedicacionActual($dni) {
     global $conexion;
-    $dni = '12345678A'; // Aquí deberías obtener el DNI del paciente autenticado
     $sql = "SELECT medicamento.nombre, cita_medicamento.cantidad AS posologia, cita_medicamento.duracion AS hasta 
             FROM cita_medicamento 
             JOIN medicamento ON cita_medicamento.id_medicamento = medicamento.id 
@@ -73,9 +71,8 @@ function obtenerMedicacionActual() {
     echo json_encode($data);
 }
 
-function obtenerConsultasPasadas() {
+function obtenerConsultasPasadas($dni) {
     global $conexion;
-    $dni = '12345678A'; // Aquí deberías obtener el DNI del paciente autenticado
     $sql = "SELECT cita.id, cita.fecha 
             FROM cita 
             JOIN paciente ON cita.id_paciente = paciente.id 
@@ -95,13 +92,16 @@ function obtenerDetalleConsulta($idConsulta) {
             JOIN medico ON cita.id_medico = medico.id 
             WHERE cita.id = $idConsulta";
     $result = $conexion->query($sql);
+    if (!$result) {
+        echo json_encode(['success' => false, 'message' => 'Error al obtener los detalles de la consulta']);
+        return;
+    }
     $data = $result->fetch_assoc();
     echo json_encode($data);
 }
 
-function pedirCita($data) {
+function pedirCita($data, $dni) {
     global $conexion;
-    $dni = '12345678A'; // Aquí deberías obtener el DNI del paciente autenticado
     $sqlPaciente = "SELECT id FROM paciente WHERE dni = '$dni'";
     $resultPaciente = $conexion->query($sqlPaciente);
     $paciente = $resultPaciente->fetch_assoc();
@@ -124,9 +124,8 @@ function pedirCita($data) {
     $stmt->close();
 }
 
-function obtenerMedicosDisponibles() {
+function obtenerMedicosDisponibles($dni) {
     global $conexion;
-    $dni = '12345678A'; // Aquí deberías obtener el DNI del paciente autenticado
     $sql = "SELECT medico.id, medico.nombre, medico.especialidad 
             FROM medico 
             JOIN paciente_medico ON medico.id = paciente_medico.id_medico 

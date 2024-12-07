@@ -22,7 +22,7 @@ if (!verificarTabla($conexion, 'paciente')) {
     // Insertar datos en la tabla 'paciente'
     $insert_pacientes = "INSERT INTO paciente (nombre, informacion, dni, contra) VALUES
         ('Juan Pérez', 'Paciente con antecedentes de diabetes', '12345678A', '1234'),
-        ('María Gómez', 'Paciente con dolores crónicos de cabeza', '98765432Z', 'password987')";
+        ('María Gómez', 'Paciente con dolores crónicos de cabeza', '12345678B', '1234')";
     mysqli_query($conexion, $insert_pacientes) or die("Error al insertar datos en 'paciente': " . mysqli_error($conexion));
 }
 
@@ -39,8 +39,8 @@ if (!verificarTabla($conexion, 'medico')) {
 
     // Insertar datos en la tabla 'medico'
     $insert_medicos = "INSERT INTO medico (nombre, especialidad, dni, contra) VALUES
-        ('Dr. Fernández', 'CABECERA', '12345678B', '1234'),
-        ('Dra. López', 'PEDIATRÍA', '22334455D', 'medico456')";
+        ('Dr. Fernández', 'CABECERA', '12345678Y', '1234'),
+        ('Dra. López', 'PEDIATRÍA', '12345678Z', '1234')";
     mysqli_query($conexion, $insert_medicos) or die("Error al insertar datos en 'medico': " . mysqli_error($conexion));
 }
 
@@ -53,15 +53,16 @@ if (!verificarTabla($conexion, 'cita')) {
         fecha DATE NOT NULL,
         sintomas TEXT,
         diagnostico TEXT,
+        pdf VARCHAR(255),
         FOREIGN KEY (id_paciente) REFERENCES paciente(id),
         FOREIGN KEY (id_medico) REFERENCES medico(id)
     )";
     mysqli_query($conexion, $sql_cita) or die("Error al crear la tabla 'cita': " . mysqli_error($conexion));
 
     // Insertar datos en la tabla 'cita'
-    $insert_citas = "INSERT INTO cita (id_paciente, id_medico, fecha, sintomas) VALUES 
-        (1, 1, '2024-12-01', 'Dolor abdominal'),
-        (2, 2, '2024-12-02', 'Mareos constantes')";
+    $insert_citas = "INSERT INTO cita (id_paciente, id_medico, fecha, sintomas, diagnostico, pdf) VALUES 
+        (1, 1, '2024-12-01', 'Dolor abdominal', 'Gastritis leve', 'citas/diagnostico1.pdf'),
+        (2, 2, '2024-12-02', 'Mareos constantes', 'Hipotensión', 'citas/diagnostico2.pdf')";
     mysqli_query($conexion, $insert_citas) or die("Error al insertar datos en 'cita': " . mysqli_error($conexion));
 }
 
