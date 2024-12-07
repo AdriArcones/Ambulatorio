@@ -14,7 +14,6 @@ document.addEventListener("DOMContentLoaded", () => {
     configurarFormularioCita(dniPaciente);
 });
 
-
 function obtenerInformacionPaciente(dni) {
     fetch(`../php/paciente.php?action=info&dni=${dni}`)
         .then(response => response.json())
@@ -115,41 +114,15 @@ function configurarFormularioCita(dni) {
         .catch(error => console.error("Error al obtener los médicos disponibles:", error));
 
     fechaInput.addEventListener("change", () => {
-        const fechaSeleccionada = new Date(fechaInput.value);
-        const hoy = new Date();
-        const unMesDespues = new Date(hoy);
-        unMesDespues.setMonth(hoy.getMonth() + 1);
-
-        if (fechaSeleccionada < hoy) {
-            errorFecha.textContent = "Fecha no válida";
-        } else if (fechaSeleccionada.getDay() === 0 || fechaSeleccionada.getDay() === 6) {
-            errorFecha.textContent = "Por favor, elija un día laborable";
-        } else if (fechaSeleccionada > unMesDespues) {
-            errorFecha.textContent = "Tan malo no estarás. Pide una fecha como máximo 30 días en el futuro";
-        } else {
-            errorFecha.textContent = "";
-        }
+        validarFecha(fechaInput, errorFecha);
     });
 
     formCita.addEventListener("submit", (event) => {
         event.preventDefault();
-        let valid = true;
+        const validFecha = validarFecha(fechaInput, errorFecha);
+        const validSintomas = validarSintomas(sintomasInput, errorSintomas);
 
-        if (!fechaInput.value) {
-            errorFecha.textContent = "La fecha es obligatoria";
-            valid = false;
-        } else {
-            errorFecha.textContent = "";
-        }
-
-        if (!sintomasInput.value.trim()) {
-            errorSintomas.textContent = "La sintomatología es obligatoria";
-            valid = false;
-        } else {
-            errorSintomas.textContent = "";
-        }
-
-        if (valid) {
+        if (validFecha && validSintomas) {
             const medico = document.getElementById("medico").value;
             const fecha = fechaInput.value;
             const sintomas = sintomasInput.value;
@@ -173,4 +146,40 @@ function configurarFormularioCita(dni) {
             .catch(error => console.error("Error al pedir la cita:", error));
         }
     });
+}
+
+function validarFecha(fechaInput, errorFecha) {
+    if (!fechaInput.value) {
+        errorFecha.textContent = "La fecha es obligatoria";
+        return false;
+    }
+
+    const fechaSeleccionada = new Date(fechaInput.value);
+    const hoy = new Date();
+    const unMesDespues = new Date(hoy);
+    unMesDespues.setMonth(hoy.getMonth() + 1);
+
+    if (fechaSeleccionada < hoy) {
+        errorFecha.textContent = "Fecha no válida";
+        return false;
+    } else if (fechaSeleccionada.getDay() === 0 || fechaSeleccionada.getDay() === 6) {
+        errorFecha.textContent = "Por favor, elija un día laborable";
+        return false;
+    } else if (fechaSeleccionada > unMesDespues) {
+        errorFecha.textContent = "Tan malo no estarás. Pide una fecha como máximo 30 días en el futuro";
+        return false;
+    } else {
+        errorFecha.textContent = "";
+        return true;
+    }
+}
+
+function validarSintomas(sintomasInput, errorSintomas) {
+    if (!sintomasInput.value.trim()) {
+        errorSintomas.textContent = "La sintomatología es obligatoria";
+        return false;
+    } else {
+        errorSintomas.textContent = "";
+        return true;
+    }
 }
