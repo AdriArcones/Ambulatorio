@@ -1,211 +1,232 @@
-const consultas = [
-    {
-        id: 1,
-        medico: "Dr. García",
-        paciente: "Juan Pérez",
-        fecha: "2024-12-01",
-        sintomas: "Dolor en el pecho",
-        diagnostico: "",
-        medicacion: [],
-        pdf: "",
-        especialista: ""
-    },
-
-    {
-        id: 2,
-        medico: "Dr. García",
-        paciente: "Ana López",
-        fecha: "2024-12-01",
-        sintomas: "Mareos y náuseas",
-        diagnostico: "",
-        medicacion: [],
-        pdf: "",
-        especialista: ""
-    },
-];
-
 document.addEventListener("DOMContentLoaded", () => {
     const urlParams = new URLSearchParams(window.location.search);
-    const consultaId = parseInt(urlParams.get('id'), 10); // Obtener ID desde la URL
-    const consulta = consultas.find(c => c.id === consultaId);
+    const consultaId = urlParams.get('id');
+    const dniMedico = urlParams.get('medico');
 
-    if (!consulta) {
-        alert("Consulta no encontrada");
+    if (!consultaId || !dniMedico) {
+        alert("ID de consulta o DNI de médico no especificado. Por favor, inicie sesión.");
         return;
     }
 
-    // Mostrar información de la consulta
+    obtenerDatosConsulta(consultaId, dniMedico);
+    obtenerMedicamentosDisponibles();
+    obtenerEspecialistasDisponibles(dniMedico);
+});
+
+function obtenerDatosConsulta(consultaId, dniMedico) {
+    fetch(`../php/consulta.php?action=obtenerConsulta&id=${consultaId}&medico=${dniMedico}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                mostrarDatosConsulta(data.consulta);
+            } else {
+                alert("Error al obtener los datos de la consulta: " + data.message);
+            }
+        })
+        .catch(error => console.error("Error al obtener los datos de la consulta:", error));
+}
+
+function mostrarDatosConsulta(consulta) {
     document.getElementById("nombreMedico").textContent = consulta.medico;
     document.getElementById("nombrePaciente").textContent = consulta.paciente;
     document.getElementById("fechaConsulta").textContent = consulta.fecha;
+    document.getElementById("sintomas").value = consulta.sintomas;
+    document.getElementById("diagnostico").value = consulta.diagnostico;
 
-    // Mostrar y editar sintomatología
-    const sintomasInput = document.getElementById("sintomas");
-    sintomasInput.value = consulta.sintomas;
-
-    // Mostrar y editar diagnóstico
-    const diagnosticoInput = document.getElementById("diagnostico");
-    diagnosticoInput.value = consulta.diagnostico;
-
-    // Añadir medicación
-    const formMedicacion = document.getElementById("formMedicacion");
+    // Mostrar medicación
     const listaMedicacion = document.getElementById("listaMedicacion");
-    const medicamentosDisponibles = ["Paracetamol", "Ibuprofeno"]; // Lista de medicamentos disponibles
-    const selectMedicamento = document.getElementById("medicamento");
-
-    medicamentosDisponibles.forEach(med => {
-        const option = document.createElement("option");
-        option.value = med;
-        option.textContent = med;
-        selectMedicamento.appendChild(option);
+    listaMedicacion.innerHTML = "";
+    consulta.medicacion.forEach(med => {
+        const li = document.createElement("li");
+        li.textContent = `${med.nombre}, ${med.cantidad}, ${med.frecuencia}, ${med.duracion}`;
+        listaMedicacion.appendChild(li);
     });
-
-    const cantidadInput = document.getElementById("cantidad");
-    const frecuenciaInput = document.getElementById("frecuencia");
-    const duracionInput = document.getElementById("duracion");
-    const cronicaCheckbox = document.getElementById("cronica");
-    const mensajeErrorMedicacion = document.createElement("span");
-    mensajeErrorMedicacion.classList.add("error");
-    formMedicacion.appendChild(mensajeErrorMedicacion);
-
-    document.getElementById("btnAddMedicacion").addEventListener("click", () => {
-        const medicamento = selectMedicamento.value;
-        const cantidad = cantidadInput.value;
-        const frecuencia = frecuenciaInput.value;
-        const duracion = duracionInput.value;
-        const cronica = cronicaCheckbox.checked;
-
-        // Validar los campos de medicación
-        if (!medicamento || !cantidad || !frecuencia || (!duracion && !cronica)) {
-            mensajeErrorMedicacion.innerHTML = "Por favor, complete todos los campos de medicación.<br>";
-            return;
-        }
-        if (cantidad.length > 100 || frecuencia.length > 100 || duracion.length > 100) {
-            mensajeErrorMedicacion.innerHTML = "Los campos de medicación no deben exceder los 100 caracteres.<br>";
-            return;
-        }
-
-        const nuevaMedicacion = {
-            medicamento,
-            cantidad,
-            frecuencia,
-            duracion: cronica ? "365 días" : duracion
-        };
-
-        consulta.medicacion.push(nuevaMedicacion);
-        actualizarListaMedicacion();
-        mensajeErrorMedicacion.innerHTML = "";
-    });
-
-    function actualizarListaMedicacion() {
-        listaMedicacion.innerHTML = "";
-        consulta.medicacion.forEach(med => {
-            const li = document.createElement("li");
-            li.textContent = `${med.medicamento}, ${med.cantidad}, ${med.frecuencia}, ${med.duracion}`;
-            listaMedicacion.appendChild(li);
-        });
-    }
-    actualizarListaMedicacion();
 
     // Subir PDF
-    document.getElementById("subirPdf").addEventListener("change", (event) => {
-        const file = event.target.files[0];
-        if (file) {
-            consulta.pdf = `html/pdf/${file.name}`;
-        }
-    });
+    if (consulta.pdf) {
+        const pdfLink = document.createElement("a");
+        pdfLink.href = `../data/${consulta.pdf}`;
+        pdfLink.textContent = "Descargar PDF";
+        pdfLink.target = "_blank";
+        document.getElementById("subir").appendChild(pdfLink);
+    }
+}
 
-    // Derivar a especialista
-    const formEspecialista = document.getElementById("formEspecialista");
-    const selectEspecialista = document.getElementById("selectEspecialista");
-    const especialistasDisponibles = ["Dr. López", "Dra. Martínez"]; // Lista de especialistas disponibles
+function obtenerMedicamentosDisponibles() {
+    fetch(`../php/consulta.php?action=obtenerMedicamentos`)
+        .then(response => response.json())
+        .then(data => {
+            const selectMedicamento = document.getElementById("medicamento");
+            data.forEach(med => {
+                const option = document.createElement("option");
+                option.value = med.id;
+                option.textContent = med.nombre;
+                selectMedicamento.appendChild(option);
+            });
+        })
+        .catch(error => console.error("Error al obtener los medicamentos disponibles:", error));
+}
 
-    especialistasDisponibles.forEach(esp => {
-        const option = document.createElement("option");
-        option.value = esp;
-        option.textContent = esp;
-        selectEspecialista.appendChild(option);
-    });
+function obtenerEspecialistasDisponibles(dniMedico) {
+    fetch(`../php/consulta.php?action=obtenerEspecialistas&medico=${dniMedico}`)
+        .then(response => response.json())
+        .then(data => {
+            const selectEspecialista = document.getElementById("selectEspecialista");
+            data.forEach(esp => {
+                const option = document.createElement("option");
+                option.value = esp.id;
+                option.textContent = `${esp.nombre} (${esp.especialidad})`;
+                selectEspecialista.appendChild(option);
+            });
+        })
+        .catch(error => console.error("Error al obtener los especialistas disponibles:", error));
+}
 
-    const fechaEspecialistaInput = document.getElementById("fechaEspecialista");
-    const mensajeErrorFechaEspecialista = document.createElement("span");
-    mensajeErrorFechaEspecialista.classList.add("error");
-    fechaEspecialistaInput.parentNode.insertBefore(mensajeErrorFechaEspecialista, fechaEspecialistaInput.nextSibling);
+// Validaciones y funcionalidades adicionales
+document.getElementById("btnRegistrar").addEventListener("click", () => {
+    const sintomas = document.getElementById("sintomas").value.trim();
+    const diagnosticoElement = document.getElementById("diagnostico");
+    const fechaEspecialistaElement = document.getElementById("fechaEspecialista");
 
-    fechaEspecialistaInput.addEventListener("blur", () => {
-        const fechaEspecialista = fechaEspecialistaInput.value;
+    const diagnostico = diagnosticoElement ? diagnosticoElement.value.trim() : "";
+    const fechaEspecialista = fechaEspecialistaElement ? fechaEspecialistaElement.value : "";
+
+    const mensajeErrorDiagnostico = document.getElementById("mensajeErrorDiagnostico");
+    const mensajeErrorFechaEspecialista = document.getElementById("mensajeErrorFechaEspecialista");
+
+    let valid = true;
+
+    // Validación de diagnóstico
+    if (!diagnostico) {
+        mensajeErrorDiagnostico.textContent = "El diagnóstico es obligatorio.";
+        valid = false;
+    } else {
+        mensajeErrorDiagnostico.textContent = "";
+    }
+
+    // Validación de fecha de especialista
+    if (!fechaEspecialista) {
+        mensajeErrorFechaEspecialista.textContent = "La fecha de cita es obligatoria.";
+        valid = false;
+    } else {
         const fechaSeleccionada = new Date(fechaEspecialista);
         const hoy = new Date();
         const tresMesesDespues = new Date(hoy);
         tresMesesDespues.setMonth(hoy.getMonth() + 3);
 
-        if (fechaSeleccionada < hoy || fechaSeleccionada.getDay() === 0 || fechaSeleccionada.getDay() === 6 || fechaSeleccionada > tresMesesDespues) {
-            mensajeErrorFechaEspecialista.innerHTML = "Por favor, elija una fecha válida (dentro de los próximos 3 meses y en días laborables).<br>";
+        if (fechaSeleccionada < hoy) {
+            mensajeErrorFechaEspecialista.textContent = "Fecha no válida.";
+            valid = false;
+        } else if (fechaSeleccionada.getDay() === 0 || fechaSeleccionada.getDay() === 6) {
+            mensajeErrorFechaEspecialista.textContent = "Elige un día laboral.";
+            valid = false;
+        } else if (fechaSeleccionada > tresMesesDespues) {
+            mensajeErrorFechaEspecialista.textContent = "Elige una fecha dentro de los próximos 3 meses.";
+            valid = false;
         } else {
-            mensajeErrorFechaEspecialista.innerHTML = "";
+            mensajeErrorFechaEspecialista.textContent = "";
         }
+    }
+
+    if (!valid) {
+        return;
+    }
+
+    const medicacion = [];
+    document.querySelectorAll("#listaMedicacion li").forEach(li => {
+        const [nombre, cantidad, frecuencia, duracion] = li.textContent.split(", ");
+        medicacion.push({ nombre, cantidad, frecuencia, duracion });
     });
 
-    document.getElementById("btnAddCita").addEventListener("click", () => {
-        const especialista = selectEspecialista.value;
-        const fechaEspecialista = fechaEspecialistaInput.value;
+    const pdf = document.getElementById("subirPdf").files[0];
+    const especialista = document.getElementById("selectEspecialista").value;
 
-        if (!especialista || !fechaEspecialista || mensajeErrorFechaEspecialista.innerHTML) {
-            mensajeErrorFechaEspecialista.innerHTML = "Por favor, complete todos los campos para derivar a un especialista.<br>";
-            return;
-        }
+    const formData = new FormData();
+    formData.append("sintomas", sintomas);
+    formData.append("diagnostico", diagnostico);
+    formData.append("medicacion", JSON.stringify(medicacion));
+    if (pdf) {
+        formData.append("pdf", pdf);
+    }
+    formData.append("especialista", especialista);
+    formData.append("fechaEspecialista", fechaEspecialista);
 
-        consulta.especialista = {
-            especialista,
-            fecha: fechaEspecialista
-        };
-
-        mensajeErrorFechaEspecialista.innerHTML = "";
-        alert("Cita con especialista añadida con éxito.");
-    });
-
-    // Validar campos obligatorios en tiempo real
-    const mensajeErrorSintomas = document.createElement("span");
-    mensajeErrorSintomas.classList.add("error");
-    sintomasInput.parentNode.appendChild(mensajeErrorSintomas);
-
-    const mensajeErrorDiagnostico = document.createElement("span");
-    mensajeErrorDiagnostico.classList.add("error");
-    diagnosticoInput.parentNode.appendChild(mensajeErrorDiagnostico);
-
-    sintomasInput.addEventListener("blur", () => {
-        if (!sintomasInput.value.trim()) {
-            mensajeErrorSintomas.innerHTML = "Por favor, complete el campo de sintomatología.<br>";
+    fetch(`../php/consulta.php?action=registrarConsulta&id=${consultaId}&medico=${dniMedico}`, {
+        method: "POST",
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert("Consulta registrada con éxito.");
+            window.location.href = `medico.html?dni=${dniMedico}`;
         } else {
-            mensajeErrorSintomas.innerHTML = "";
+            alert("Error al registrar la consulta: " + data.message);
         }
-    });
+    })
+    .catch(error => console.error("Error al registrar la consulta:", error));
+});
 
-    diagnosticoInput.addEventListener("blur", () => {
-        if (!diagnosticoInput.value.trim()) {
-            mensajeErrorDiagnostico.innerHTML = "Por favor, complete el campo de diagnóstico.<br>";
-        } else {
-            mensajeErrorDiagnostico.innerHTML = "";
-        }
-    });
+// Validaciones de medicación
+document.getElementById("btnAddMedicacion").addEventListener("click", () => {
+    const medicamento = document.getElementById("medicamento").value;
+    const cantidad = document.getElementById("cantidad").value.trim();
+    const frecuencia = document.getElementById("frecuencia").value.trim();
+    const duracion = document.getElementById("duracion").value.trim();
+    const cronica = document.getElementById("cronica").checked;
 
-    // Registrar consulta
-    document.getElementById("btnRegistrar").addEventListener("click", () => {
-        consulta.sintomas = sintomasInput.value;
-        consulta.diagnostico = diagnosticoInput.value;
+    const mensajeErrorMedicacion = document.getElementById("mensajeErrorMedicacion");
 
-        alert("Consulta registrada con éxito.");
-    });
+    if (!medicamento || !cantidad || !frecuencia || (!duracion && !cronica)) {
+        mensajeErrorMedicacion.textContent = "Por favor, complete todos los campos de medicación.";
+        return;
+    }
 
-    // Mostrar/ocultar campo de duración según el checkbox "crónica"
-    cronicaCheckbox.addEventListener("change", (event) => {
-        const duracionLabel = document.querySelector("label[for='duracion']");
-        if (event.target.checked) {
-            duracionInput.style.display = "none";
-            duracionLabel.style.display = "none";
-        } else {
-            duracionInput.style.display = "block";
-            duracionLabel.style.display = "block";
-        }
-    });
+    const nuevaMedicacion = {
+        medicamento,
+        cantidad,
+        frecuencia,
+        duracion: cronica ? "365 días" : duracion
+    };
+
+    const listaMedicacion = document.getElementById("listaMedicacion");
+    const li = document.createElement("li");
+    li.textContent = `${nuevaMedicacion.medicamento}, ${nuevaMedicacion.cantidad}, ${nuevaMedicacion.frecuencia}, ${nuevaMedicacion.duracion}`;
+    listaMedicacion.appendChild(li);
+
+    mensajeErrorMedicacion.textContent = "";
+});
+
+// Validaciones de fecha para especialista
+document.getElementById("fechaEspecialista").addEventListener("blur", () => {
+    const fechaEspecialista = document.getElementById("fechaEspecialista").value;
+    const fechaSeleccionada = new Date(fechaEspecialista);
+    const hoy = new Date();
+    const tresMesesDespues = new Date(hoy);
+    tresMesesDespues.setMonth(hoy.getMonth() + 3);
+
+    const mensajeErrorFechaEspecialista = document.getElementById("mensajeErrorFechaEspecialista");
+
+    if (fechaSeleccionada < hoy) {
+        mensajeErrorFechaEspecialista.textContent = "Fecha no válida.";
+    } else if (fechaSeleccionada.getDay() === 0 || fechaSeleccionada.getDay() === 6) {
+        mensajeErrorFechaEspecialista.textContent = "Elige un día laboral.";
+    } else if (fechaSeleccionada > tresMesesDespues) {
+        mensajeErrorFechaEspecialista.textContent = "Elige una fecha dentro de los próximos 3 meses.";
+    } else {
+        mensajeErrorFechaEspecialista.textContent = "";
+    }
+});
+
+// Mostrar/ocultar campo de duración según el checkbox "crónica"
+document.getElementById("cronica").addEventListener("change", (event) => {
+    const duracionInput = document.getElementById("duracion");
+    const duracionLabel = document.querySelector("label[for='duracion']");
+    if (event.target.checked) {
+        duracionInput.style.display = "none";
+        duracionLabel.style.display = "none";
+    } else {
+        duracionInput.style.display = "block";
+        duracionLabel.style.display = "block";
+    }
 });

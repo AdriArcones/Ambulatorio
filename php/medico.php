@@ -4,8 +4,6 @@ include_once 'conecta.php';
 $action = $_GET['action'];
 $dni = $_GET['dni']; // Obtener el DNI de la URL
 
-
-
 switch ($action) {
     case 'info':
         obtenerInformacionMedico($dni);
@@ -57,7 +55,6 @@ function obtenerConsultasHoy($dni) {
     }
     echo json_encode($data);
 }
-
 
 $conexion->close();
 ?>

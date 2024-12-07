@@ -15,7 +15,6 @@
     <div class="color"></div>
     <div class="color"></div>
 
-
     <header>
         <h1>CONSULTA MÉDICA</h1>
         <div class="enlace-inicio">
@@ -38,6 +37,7 @@
         <section id="diagnostico">
             <h3>Diagnóstico</h3>
             <textarea id="diagnostico"></textarea>
+            <span id="mensajeErrorDiagnostico" class="error"></span>
         </section>
         <section id="medicacion">
             <h3>Medicación</h3>
@@ -53,6 +53,7 @@
                 <label for="cronica">¿Crónica?:</label>
                 <input type="checkbox" id="cronica">
                 <button type="button" id="btnAddMedicacion" class="btn">Añadir Medicación</button>
+                <span id="mensajeErrorMedicacion" class="error"></span>
             </form>
             <h4>Medicamentos añadidos:</h4>
             <ul id="listaMedicacion" class="contenido"></ul>
@@ -68,7 +69,7 @@
                 <select id="selectEspecialista"></select>
                 <label for="fechaEspecialista">Fecha de cita:</label>
                 <input type="date" id="fechaEspecialista">
-                <button type="button" id="btnAddCita" class="btn">Añadir Cita</button>
+                <span id="mensajeErrorFechaEspecialista" class="error"></span>
             </form>
         </section>
         <button id="btnRegistrar" class="btn">Registrar</button>
