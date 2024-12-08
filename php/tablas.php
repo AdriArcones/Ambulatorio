@@ -62,7 +62,11 @@ if (!verificarTabla($conexion, 'cita')) {
     // Insertar datos en la tabla 'cita'
     $insert_citas = "INSERT INTO cita (id_paciente, id_medico, fecha, sintomas, diagnostico, pdf) VALUES 
         (1, 1, '2024-12-01', 'Dolor abdominal', 'Gastritis leve', 'citas/diagnostico1.pdf'),
-        (2, 2, '2024-12-02', 'Mareos constantes', 'Hipotensión', 'citas/diagnostico2.pdf')";
+        (2, 2, '2024-12-02', 'Mareos constantes', 'Hipotensión', 'citas/diagnostico2.pdf'),
+        (1, 1, '2024-12-08', 'Dolor de cabeza', 'Migraña', 'citas/diagnostico3.pdf'),
+        (1, 1, '2024-12-09', 'Dolor de espalda', 'Lumbalgia', 'citas/diagnostico4.pdf'),
+        (1, 1, '2024-12-10', 'Fiebre', 'Infección viral', 'citas/diagnostico5.pdf'),
+        (1, 1, '2024-12-11', 'Tos persistente', 'Bronquitis', 'citas/diagnostico6.pdf')";
     mysqli_query($conexion, $insert_citas) or die("Error al insertar datos en 'cita': " . mysqli_error($conexion));
 }
 
