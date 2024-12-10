@@ -16,7 +16,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 
-
 ///////////////////////////////////////
 // AJAX
 ///////////////////////////////////////
@@ -98,8 +97,6 @@ function mostrarDetalleConsulta(idConsulta) {
         })
         .catch(error => console.error("Error al obtener los detalles de la consulta:", error));
 }
-
-
 
 
 

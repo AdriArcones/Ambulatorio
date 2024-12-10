@@ -16,6 +16,13 @@ document.addEventListener("DOMContentLoaded", () => {
     obtenerEspecialistasDisponibles(dniMedico);
 });
 
+
+
+
+///////////////////////////////////////
+// AJAX
+///////////////////////////////////////
+
 function obtenerDatosConsulta(consultaId, dniMedico) {
     fetch(`../php/consulta.php?action=obtenerConsulta&id=${consultaId}&medico=${dniMedico}`)
         .then(response => response.json())
@@ -85,7 +92,13 @@ function obtenerEspecialistasDisponibles(dniMedico) {
         .catch(error => console.error("Error al obtener los especialistas disponibles:", error));
 }
 
-// Validaciones y funcionalidades adicionales
+
+
+
+///////////////////////////////////////
+// VALIDACIONES
+///////////////////////////////////////
+
 document.getElementById("btnRegistrar").addEventListener("click", () => {
     const sintomas = document.getElementById("sintomas").value.trim();
     const diagnosticoElement = document.getElementById("diagnostico");

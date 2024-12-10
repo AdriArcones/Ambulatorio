@@ -10,6 +10,12 @@ botonSwitch.addEventListener("change", () => {
     valueDisplay.textContent = botonSwitch.checked ? "Médico" : "Paciente";
 });
 
+
+
+///////////////////////////////////////
+// VALIDACIONES
+///////////////////////////////////////
+
 // Validar DNI cuando el campo pierde el foco
 document.getElementById("dni").addEventListener("blur", () => {
     const dni = document.getElementById("dni").value;
@@ -30,6 +36,12 @@ document.getElementById("contra").addEventListener("blur", () => {
         errorContra.textContent = "";
     }
 });
+
+
+
+///////////////////////////////////////
+// AJAX
+///////////////////////////////////////
 
 // Llamar a tablas.php para inicializar la base de datos
 window.addEventListener("load", () => {

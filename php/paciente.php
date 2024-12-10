@@ -1,9 +1,9 @@
 <?php
 include_once 'conecta.php';
 
-
+// Obtengo la acción y el DNI de la URL
 $action = $_GET['action'];
-$dni = $_GET['dni']; // Obtener el DNI de la URL
+$dni = $_GET['dni'];
 
 switch ($action) {
     case 'info':
@@ -34,11 +34,11 @@ switch ($action) {
 }
 
 function obtenerInformacionPaciente($dni) {
-    global $conexion;
+    global $conexion; //Utilizo la variable global $conexion para acceder a la conexión de la base de datos establecida previamente.
     $sql = "SELECT nombre, informacion FROM paciente WHERE dni = '$dni'"; 
     $result = $conexion->query($sql);
-    $data = $result->fetch_assoc();
-    echo json_encode($data);
+    $data = $result->fetch_assoc(); //Utilizo el método fetch_assoc para obtener la fila de resultados como un array asociativo.
+    echo json_encode($data); //Codifico el array $data como JSON y lo envío como respuesta.
 }
 
 function obtenerProximasCitas($dni) {
@@ -47,7 +47,7 @@ function obtenerProximasCitas($dni) {
             FROM cita 
             JOIN medico ON cita.id_medico = medico.id 
             JOIN paciente ON cita.id_paciente = paciente.id 
-            WHERE paciente.dni = '$dni' AND cita.fecha >= CURDATE()";
+            WHERE paciente.dni = '$dni' AND cita.fecha >= CURDATE()"; //Utilizo JOIN para combinar las tablas cita, medico y paciente basándome en las claves foráneas id_medico y id_paciente.
     $result = $conexion->query($sql);
     $data = [];
     while ($row = $result->fetch_assoc()) {
