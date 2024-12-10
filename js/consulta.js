@@ -1,7 +1,10 @@
+let consultaId;
+let dniMedico;
+
 document.addEventListener("DOMContentLoaded", () => {
     const urlParams = new URLSearchParams(window.location.search);
-    const consultaId = urlParams.get('id');
-    const dniMedico = urlParams.get('medico');
+    consultaId = urlParams.get('id');
+    dniMedico = urlParams.get('medico');
 
     if (!consultaId || !dniMedico) {
         alert("ID de consulta o DNI de médico no especificado. Por favor, inicie sesión.");

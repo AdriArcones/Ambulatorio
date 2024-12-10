@@ -14,6 +14,13 @@ document.addEventListener("DOMContentLoaded", () => {
     configurarFormularioCita(dniPaciente);
 });
 
+
+
+
+///////////////////////////////////////
+// AJAX
+///////////////////////////////////////
+
 function obtenerInformacionPaciente(dni) {
     fetch(`../php/paciente.php?action=info&dni=${dni}`)
         .then(response => response.json())
@@ -92,6 +99,13 @@ function mostrarDetalleConsulta(idConsulta) {
         .catch(error => console.error("Error al obtener los detalles de la consulta:", error));
 }
 
+
+
+
+
+///////////////////////////////////////
+// VALIDACIONES
+///////////////////////////////////////
 function configurarFormularioCita(dni) {
     const formCita = document.getElementById("formCita");
     const fechaInput = document.getElementById("fecha");

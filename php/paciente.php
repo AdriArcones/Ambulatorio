@@ -1,6 +1,7 @@
 <?php
 include_once 'conecta.php';
 
+
 $action = $_GET['action'];
 $dni = $_GET['dni']; // Obtener el DNI de la URL
 
@@ -86,18 +87,26 @@ function obtenerConsultasPasadas($dni) {
 }
 
 function obtenerDetalleConsulta($idConsulta) {
+    header('Content-Type: application/json');
     global $conexion;
     $sql = "SELECT cita.*, medico.nombre AS medico, medico.especialidad 
             FROM cita 
             JOIN medico ON cita.id_medico = medico.id 
             WHERE cita.id = $idConsulta";
     $result = $conexion->query($sql);
+
     if (!$result) {
         echo json_encode(['success' => false, 'message' => 'Error al obtener los detalles de la consulta']);
         return;
     }
+
     $data = $result->fetch_assoc();
-    echo json_encode($data);
+
+    if ($data) {
+        echo json_encode($data);
+    } else {
+        echo json_encode(['success' => false, 'message' => 'No se encontraron detalles para la consulta']);
+    }
 }
 
 function pedirCita($data, $dni) {
